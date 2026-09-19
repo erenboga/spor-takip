@@ -1,6 +1,97 @@
-import { Dumbbell, Flame, Trophy } from 'lucide-react'
+import { useState } from "react"
+import { Dumbbell, Flame, Trophy, ChevronLeft } from "lucide-react"
+import {db, type WorkoutSet} from "./db"
 
-export default function App() {
+export default function App()
+{
+  const [isWorkoutActive, setIsWorkoutActive] = useState(false)
+  const [exerciseName, setExerciseName] = useState("")
+  const [weight, setWeight] = useState("")
+  const [reps, setReps] = useState("")
+  const [completedSets, setCompletedSets] = useState<WorkoutSet[]>([])
+
+  async function setiKaydet()
+  {
+      if(!weight || !reps || !exerciseName)  return;
+
+      const myWorkoutSet: WorkoutSet = 
+      {
+        exerciseName: exerciseName,
+        weight: Number(weight),
+        reps: Number(reps),
+        date: new Date().toISOString()
+      }
+      
+  await db.sets.add(myWorkoutSet);
+  setCompletedSets([...completedSets,myWorkoutSet])
+  }
+
+
+  if (isWorkoutActive) {
+    return (
+      <div className="min-h-screen bg-zinc-950 text-white flex flex-col items-center justify-center p-4">
+        <div className="w-full max-w-sm bg-zinc-900/80 border border-zinc-800 rounded-3xl p-6 flex flex-col items-center">
+          <h2 className="text-xl font-bold mb-4 text-purple-400">Antrenman Başladı</h2>
+          
+          <div className="text-purple-400 font-semibold text-sm mb-2">
+          {completedSets.length + 1}. Set
+          </div>
+
+          
+          {/* Hareket Adı Girişi */}
+          <input type="text" placeholder="Hareket Adı" value={exerciseName}
+          onChange={(e) => setExerciseName(e.target.value)} 
+          className="w-full bg-zinc-950 border border-zinc-700
+          rounded-xl p-3 text-white mb-4"/>
+            
+          {/* Set Ağırlık Girişi */}
+          <div className="grid grid-cols-2 gap-3 w-full">
+              <input type="number" placeholder="Ağırlık" value={weight}
+                onChange={(e) => setWeight(e.target.value)}
+                className="w-full bg-zinc-950 border border-zinc-700
+                rounded-xl p-3 text-white mb-4"/>
+              <input type="number" placeholder="Tekrar" value={reps}
+              onChange={(e) => setReps(e.target.value)}
+              className="w-full bg-zinc-950 border border-zinc-700
+              rounded-xl p-3 text-white mb-4"/>
+          </div>
+
+          <button
+          onClick={setiKaydet}
+          className="bg-purple-600 hover:bg-purple-500 w-full
+          text-white font-semibold py-3 rounded-xl active:scale-95
+          transition mb-3">
+            Seti Kaydet</button>
+            
+          {
+            completedSets.map((item,index)=>
+            (
+              <div key={index}
+              className="w-full bg-zinc-950/60
+              border border-zinc-800 rounded-xl p-2.5 px-4 mb-2 flex items-center
+              justify-between">
+                <span>{index + 1}. Set</span>
+                <span>{item.reps} Tekrar {item.weight} kg</span>
+                
+              </div>
+            ))
+            
+          }
+
+
+          {/* Geri Dönüş Butonu */}
+          <button
+            onClick={() => setIsWorkoutActive(false)}
+            className="w-full bg-zinc-800 hover:bg-zinc-700 text-white font-semibold py-3 rounded-xl transition text-sm flex items-center justify-center gap-2"
+          >
+            <ChevronLeft className="w-5 h-5 text-purple-400 items-center mt-0.5"/>
+            <span className="-ml-1.5">Ana Ekrana Dön</span>
+          </button>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-zinc-950 text-white flex flex-col items-center justify-center p-4">
       
@@ -42,7 +133,10 @@ export default function App() {
         </div>
 
         {/* Buton */}
-        <button className="w-full bg-purple-600 hover:bg-purple-500 active:scale-95 transition text-white font-semibold py-3.5 rounded-xl shadow-lg shadow-purple-900/30">
+        <button onClick = {() => setIsWorkoutActive(true)}
+        className="w-full bg-purple-600 hover:bg-purple-500 active:scale-95 
+        transition text-white font-semibold py-3.5 rounded-xl shadow-lg 
+        shadow-purple-900/30">
           Antrenmana Başla
         </button>
 
@@ -51,3 +145,4 @@ export default function App() {
     </div>
   )
 }
+
