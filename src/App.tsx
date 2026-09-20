@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Dumbbell, Flame, Trophy, ChevronLeft } from "lucide-react"
+import { Dumbbell, Flame, Trophy, ChevronLeft, ChevronDown, ChevronUp, JoystickIcon } from "lucide-react"
 import {db, type WorkoutSet} from "./db"
 
 export default function App()
@@ -9,32 +9,47 @@ export default function App()
   const [weight, setWeight] = useState("")
   const [reps, setReps] = useState("")
   const [completedSets, setCompletedSets] = useState<WorkoutSet[]>([])
+  const [currentExercise, setCurrentExercise] = useState<string | null>(null)
+
+  function formatExerciseName(text: string)
+  {
+    const words = text.trim().split(" ");
+    const capitalizedWords = words.map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    return capitalizedWords.join(" ");
+  }
 
   async function setiKaydet()
   {
-      if(!weight || !reps || !exerciseName)  return;
+    if(!weight || !reps || !exerciseName)  return;
 
-      const myWorkoutSet: WorkoutSet = 
-      {
-        exerciseName: exerciseName,
-        weight: Number(weight),
-        reps: Number(reps),
-        date: new Date().toISOString()
-      }
-      
-  await db.sets.add(myWorkoutSet);
-  setCompletedSets([...completedSets,myWorkoutSet])
+    const cleanExerciseName = formatExerciseName(exerciseName);
+    setExerciseName(cleanExerciseName);
+    
+    const myWorkoutSet: WorkoutSet = 
+    {
+      exerciseName: cleanExerciseName,
+      weight: Number(weight),
+      reps: Number(reps),
+      date: new Date().toISOString()
+    }
+    
+    await db.sets.add(myWorkoutSet);
+    setCompletedSets([...completedSets,myWorkoutSet])
   }
 
 
-  if (isWorkoutActive) {
+  if (isWorkoutActive)
+    {
+      const uniqueExercises = Array.from(new Set(completedSets.map(s => s.exerciseName)))
+      const currentExerciseSetCount = completedSets.filter(s => s.exerciseName === exerciseName).length
+
     return (
       <div className="min-h-screen bg-zinc-950 text-white flex flex-col items-center justify-center p-4">
         <div className="w-full max-w-sm bg-zinc-900/80 border border-zinc-800 rounded-3xl p-6 flex flex-col items-center">
           <h2 className="text-xl font-bold mb-4 text-purple-400">Antrenman Başladı</h2>
           
           <div className="text-purple-400 font-semibold text-sm mb-2">
-          {completedSets.length + 1}. Set
+          {currentExerciseSetCount + 1}. Set
           </div>
 
           
@@ -64,18 +79,48 @@ export default function App()
             Seti Kaydet</button>
             
           {
-            completedSets.map((item,index)=>
-            (
-              <div key={index}
-              className="w-full bg-zinc-950/60
-              border border-zinc-800 rounded-xl p-2.5 px-4 mb-2 flex items-center
-              justify-between">
-                <span>{index + 1}. Set</span>
-                <span>{item.reps} Tekrar {item.weight} kg</span>
-                
-              </div>
-            ))
-            
+            uniqueExercises.map((exercise)=>
+              {
+                const exerciseSets = completedSets.filter(s => s.exerciseName === exercise)
+                const isOpen = (currentExercise === exercise)
+                return(
+                  <div key={exercise}
+                  className="w-full mb-3">
+                    <button 
+                    onClick={() => setCurrentExercise(isOpen ? null : exercise)}
+                    className="w-full bg-zinc-950/80 border border-zinc-800 hover:border-zinc-700
+                    p-3.5 rounded-xl flex items-center justify-between">
+                      <span className="font-semibold text-sm text-zinc-200">
+                      {exercise} ({exerciseSets.length} Set)</span>
+                      {
+                      isOpen ? <ChevronUp className="w-4 h-4 text-purple-400"/> : 
+                      <ChevronDown className="w-4 h-4 text-zinc-400"/>
+                      }
+                    </button>
+
+                    {
+                    isOpen &&
+                    (
+                      <div  className="mt-2 flex flex-col gap-1.5">
+                        {
+                          exerciseSets.map((item, index) =>
+                          (
+                            <div key={index} 
+                            className="w-full bg-zinc-950/40 border border-zinc-800/60 rounded-xl
+                            p-2.5 px-4 flex items-center justify-between">
+                              <span className="text-xs text-zinc-400">{index+1}. Set</span>
+                              <span className="text-xs text-zinc-200">
+                                {item.weight} kg x {item.reps} Tekrar</span>
+                            </div>
+                          ))
+                        }
+                      </div>
+                    )
+                    }
+                  </div>
+                )
+              }
+            )
           }
 
 
@@ -88,9 +133,10 @@ export default function App()
             <span className="-ml-1.5">Ana Ekrana Dön</span>
           </button>
         </div>
-      </div>
+      </div>       
     )
   }
+
 
   return (
     <div className="min-h-screen bg-zinc-950 text-white flex flex-col items-center justify-center p-4">
