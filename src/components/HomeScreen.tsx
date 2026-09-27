@@ -3,9 +3,10 @@ import { Dumbbell, Flame, Trophy } from "lucide-react";
 interface HomeScreenProps
 {
     onStartWorkout: () => void;
+    hasActiveWorkout: boolean;
 }
 
-export function HomeScreen({ onStartWorkout }: HomeScreenProps)
+export function HomeScreen({ onStartWorkout, hasActiveWorkout }: HomeScreenProps)
 {
     return(
         <div className="w-full max-w-sm bg-zinc-900/80 border border-zinc-800 rounded-3xl p-6 shadow-2xl flex flex-col items-center">
@@ -47,9 +48,10 @@ export function HomeScreen({ onStartWorkout }: HomeScreenProps)
             {/* Antrenmana Başla Butonu */}
             <button
                 onClick={onStartWorkout}
-                className="w-full bg-purple-600 hover:bg-purple-500 active:scale-95 transition text-white font-semibold py-3.5 rounded-xl shadow-lg shadow-purple-900/30"
+                className="w-full bg-purple-600 hover:bg-purple-500 active:scale-95 transition
+                text-white font-semibold py-3.5 rounded-xl shadow-lg shadow-purple-900/30"
             >
-                Antrenmana Başla
+                {hasActiveWorkout ? "Antrenmana Devam Et":"Antrenmana Başla"}
             </button>
 
         </div>

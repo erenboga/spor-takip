@@ -4,10 +4,10 @@ import { db, type WorkoutSet } from "../db";
 
 interface WorkoutViewProps
 {
-    onFinishWorkout: () => void;
+    onMinimize: () => void;
 }
 
-export function WorkoutView({ onFinishWorkout }: WorkoutViewProps)
+export function WorkoutView({ onMinimize }: WorkoutViewProps)
 {
     const [exerciseName, setExerciseName] = useState("");
     const [weight, setWeight] = useState("");
@@ -134,10 +134,10 @@ export function WorkoutView({ onFinishWorkout }: WorkoutViewProps)
 
             {/* Geri Dönüş Butonu */}
             <button
-                onClick={onFinishWorkout}
+                onClick={onMinimize}
                 className="w-full bg-zinc-800 hover:bg-zinc-700 text-white font-semibold py-3 rounded-xl transition text-sm flex items-center justify-center gap-2"
             >
-                <ChevronLeft className="w-5 h-5 text-purple-400 items-center mt-0.5" />
+                <ChevronLeft className="w-5 h-5 text-purple-400 items-center" />
                 <span className="-ml-1.5">Ana Ekrana Dön</span>
             </button>
         </div>

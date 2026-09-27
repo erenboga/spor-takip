@@ -6,28 +6,38 @@ import { BottomNav } from "./components/BottomNav";
 
 export default function App()
 {
-    const [isWorkoutActive, setIsWorkoutActive] = useState(false);
+    const [hasActiveWorkout, setHasActiveWorkout ] = useState(false);
+    const [isWorkoutViewOpen, setIsWorkoutViewOpen ] = useState(false);
     const [activeTab, setActiveTab] = useState<"workout" | "history">("workout");
 
     return(
-        <div className="min-h-screen bg-zinc-950 text-white flex flex-col items-center justify-center p-4 pb-24">
-            
-            {/* 1. Antrenman Sekmesi (Giriş veya Aktif Antrenman) */}
+        <div className="min-h-screen bg-zinc-950 text-white flex flex-col 
+        items-center justify-center p-4 pb-24">
+
             <div className={activeTab === "workout" ? "w-full flex justify-center" : "hidden"}>
-                {isWorkoutActive ? (
-                    <WorkoutView onFinishWorkout={() => setIsWorkoutActive(false)} />
-                ) : (
-                    <HomeScreen onStartWorkout={() => setIsWorkoutActive(true)} />
-                )}
+                
+                <div className={!isWorkoutViewOpen ? "w-full flex justify-center" : "hidden"}>
+                    <HomeScreen
+                        hasActiveWorkout={hasActiveWorkout}
+                            onStartWorkout={() => {
+                                setHasActiveWorkout(true);
+                                setIsWorkoutViewOpen(true);
+                            }}/>
+                </div>
+                
+                <div className={isWorkoutViewOpen ? "w-full flex justify-center" : "hidden"}>
+                    <WorkoutView
+                    onMinimize={() => setIsWorkoutViewOpen(false)}
+                    />
+                </div>
             </div>
 
-            {/* 2. Geçmiş Sekmesi */}
-            <div className={activeTab === "history" ? "w-full flex justify-center" : "hidden"}>
-                <HistoryView />
+            <div className={activeTab === "history" ? "w-full flex justify-center" : "hidden"} >      
+                <HistoryView/>
             </div>
-
-            {/* Sabit Alt Bar */}
-            <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
+            
+            <BottomNav activeTab={activeTab}
+            setActiveTab={setActiveTab}/>
 
         </div>
     );
