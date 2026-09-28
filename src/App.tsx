@@ -4,6 +4,7 @@ import { WorkoutView } from "./components/WorkoutView";
 import { HistoryView } from "./components/HistoryView";
 import { BottomNav } from "./components/BottomNav";
 
+
 export default function App()
 {
     const [hasActiveWorkout, setHasActiveWorkout ] = useState(false);
@@ -28,6 +29,11 @@ export default function App()
                 <div className={isWorkoutViewOpen ? "w-full flex justify-center" : "hidden"}>
                     <WorkoutView
                     onMinimize={() => setIsWorkoutViewOpen(false)}
+                    onFinishWorkout={() =>
+                    {
+                        setHasActiveWorkout(false);
+                        setIsWorkoutViewOpen(false);
+                    }}
                     />
                 </div>
             </div>

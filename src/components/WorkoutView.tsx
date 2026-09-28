@@ -5,15 +5,17 @@ import { db, type WorkoutSet } from "../db";
 interface WorkoutViewProps
 {
     onMinimize: () => void;
+    onFinishWorkout: () => void;
 }
 
-export function WorkoutView({ onMinimize }: WorkoutViewProps)
+export function WorkoutView({ onMinimize, onFinishWorkout }: WorkoutViewProps)
 {
     const [exerciseName, setExerciseName] = useState("");
     const [weight, setWeight] = useState("");
     const [reps, setReps] = useState("");
     const [completedSets, setCompletedSets] = useState<WorkoutSet[]>([]);
     const [currentExercise, setCurrentExercise] = useState<string | null>(null);
+    const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
     function formatExerciseName(text: string)
     {
@@ -81,11 +83,19 @@ export function WorkoutView({ onMinimize }: WorkoutViewProps)
 
             <button
                 onClick={setiKaydet}
-                className="bg-purple-600 hover:bg-purple-500 w-full text-white font-semibold py-3 rounded-xl active:scale-95 transition mb-3"
+                className="bg-purple-600 hover:bg-purple-500 w-full text-white
+                font-semibold py-3 rounded-xl active:scale-95 transition mb-3"
             >
                 Seti Kaydet
             </button>
             
+            <button
+                onClick={() => setIsModalOpen(true)}
+                className="bg-purple-600 hover:bg-pink-800 w-full text-white font-semibold py-3 rounded-xl active:scale-95 transition mb-3"
+            >
+                Antrenmanı Bitir!
+            </button>
+
             {
                 uniqueExercises.map((exercise) =>
                 {
@@ -135,11 +145,51 @@ export function WorkoutView({ onMinimize }: WorkoutViewProps)
             {/* Geri Dönüş Butonu */}
             <button
                 onClick={onMinimize}
-                className="w-full bg-zinc-800 hover:bg-zinc-700 text-white font-semibold py-3 rounded-xl transition text-sm flex items-center justify-center gap-2"
+                className="w-full bg-zinc-800 hover:bg-zinc-700 text-white font-semibold
+                py-3 rounded-xl transition text-sm flex items-center justify-center gap-2 active:scale-95"
             >
                 <ChevronLeft className="w-5 h-5 text-purple-400 items-center" />
                 <span className="-ml-1.5">Ana Ekrana Dön</span>
             </button>
+            {
+                isModalOpen && (
+                    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                        <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 max-w-sm w-full text-center shadow-2xl">
+                            <h3 className="text-xl font-bold text-white mb-2">Antrenmanı Bitir?</h3>
+                            <p className="text-zinc-300 text-sm mb-6">
+                                Antrenmanı sonlandırmak istediğinden emin misin? Bugün toplam{" "}
+                                <span className="text-purple-400 font-semibold">{completedSets.length} set</span> kaydettin.
+                            </p>
+                            <div className="grid grid-cols-2 gap-3">
+                                <button
+                                    onClick={() => setIsModalOpen(false)}
+                                    className="w-full bg-zinc-800 hover:bg-zinc-700 border border-zinc-700/60 text-zinc-200 font-semibold py-3 rounded-xl transition text-base flex items-center justify-center active:scale-95"
+                                >
+                                    Vazgeç
+                                </button>
+
+                                <button
+                                    onClick={
+                                        () =>{
+                                                setCompletedSets([]);
+                                                setExerciseName("");
+                                                setWeight("");
+                                                setReps("");
+                                                setIsModalOpen(false);
+                                                onFinishWorkout();
+                                            }
+                                    }
+                                    className="w-full bg-red-600 hover:bg-red-500 text-white font-semibold py-3 rounded-xl transition text-base flex items-center justify-center active:scale-95 shadow-lg shadow-red-950/40"
+                                >
+                                    Bitir!
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )
+            }
+
+
         </div>
     );
 }
